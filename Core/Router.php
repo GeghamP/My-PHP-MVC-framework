@@ -3,7 +3,7 @@
 namespace Core;
 
 /**
-* The Router
+* Router
 * PHP Version 7.3.6
 */
 
@@ -22,7 +22,8 @@ class Router
 	protected $params = [];
 	
 	/**
-	* Add a route to routing table
+	* Add a route to routing table 
+	* as regular expression
 	* @param string $route The route url
 	* @param array $params Parameters(i.e. controllers, actions)
 	*
@@ -31,6 +32,9 @@ class Router
 	
 	public function add(string $route, array $params): void
 	{
+		$route = preg_replace('/\//','\\/',$route);
+		$route = preg_replace('/\{([a-z]+)\}/', '([a-z0-9-\s]+)', $route);
+		$route = '/^'.$route.'$/i';
 		$this->routes[$route] = $params;
 	}
 	
@@ -47,14 +51,49 @@ class Router
 	
 	public function matchRoute(string $url): bool
 	{
+		
 		foreach($this->routes as $route => $params){
-			if($route === $url){
-				$this->params = $params;
+			if(preg_match($route, $url, $matches)){
+				$this->params['controller'] = $params['controller'];
+				$this->params['action'] = $params['action'];
 				return true;
 			}
 		}
 		
 		return false;
+	}
+	
+	/**
+	* Dispatch the route and create the controller instance
+	* and calling the corresponding method
+	*
+	* @param string $url The route url
+	*
+	* @return void
+	*/
+	
+	public function dispatch(string $url): void
+	{
+		if($this->matchRoute($url)){
+			$controllerName = 'App\\Controllers\\'.$this->params['controller'];
+			if(class_exists($controllerName)){
+				$controller = new $controllerName();
+				
+				$actionName = $this->params['action'];
+				if(method_exists($controller, $actionName)){
+					$controller->$actionName();
+				}
+				else{
+					echo 'The method '.$actionName.' does not exist';
+				}
+			}
+			else{
+				echo 'No such class '.$controllerName.' exists';
+			}
+		}
+		else{
+			echo 'Error 404: Page does not exist';
+		}
 	}
 	
 	/**

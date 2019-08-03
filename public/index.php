@@ -1,25 +1,18 @@
 <?php
-//phpinfo();
-//var_dump($_SERVER['PATH_INFO']);
-//var_dump($_SERVER['QUERY_STRING']);
+require_once('../App/Controllers/MainController.php');
 require_once('../Core/Router.php');
 use Core\Router;
 $router = new Router();
-
-$router->add('',['controller' => 'Some controller', 'action' => 'index']);
-$router->add('posts',['controller' => 'Post controller', 'action' => 'posts']);
-
+$router->add('',['controller' => 'MainController', 'action' => 'index']);
+$router->add('home/about',['controller' => 'home', 'action' => 'index']);
+$router->add('posts',['controller' => 'posts', 'action' => 'all']);
+$router->add('user/{id}',['controller' => 'users', 'action' => 'getById']);
 $url = isset($_SERVER['PATH_INFO']) ? str_replace('/public/','',$_SERVER['PATH_INFO']) : '';
 
-if($url){
-	$is = $router->matchRoute($url);
-	if($is){
-		var_dump($router->getParams());
-	}
-	else{
-		echo 'No route has been found';
-	}
-}
-else{
-	echo 'You are in the index file';
-}
+$is = $router->dispatch($url);
+
+/*echo "<br>";
+
+$str = 'ap and 58';
+$str = preg_replace('/(\w+) and (\d+)/','$2 or $1',$str);
+var_dump($str);*/
