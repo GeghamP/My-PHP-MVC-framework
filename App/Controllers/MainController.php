@@ -3,7 +3,7 @@
 namespace App\Controllers;
 
 /**
-* Router
+* MainController
 * PHP Version 7.3.6
 */
 
@@ -17,6 +17,6 @@ class MainController
 	*/
 	public function index(): void
 	{
-		echo "Hey you are in the main page. Congrats";
+		echo "Hey you are in the main page. Congrats<br>";
 	}
 }

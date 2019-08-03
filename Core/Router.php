@@ -33,7 +33,7 @@ class Router
 	public function add(string $route, array $params): void
 	{
 		$route = preg_replace('/\//','\\/',$route);
-		$route = preg_replace('/\{([a-z]+)\}/', '([a-z0-9-\s]+)', $route);
+		$route = preg_replace('/\{([a-z]+)\}/', '(?<_$1>[a-z0-9-\s]+)', $route);
 		$route = '/^'.$route.'$/i';
 		$this->routes[$route] = $params;
 	}
@@ -50,10 +50,17 @@ class Router
 	*/
 	
 	public function matchRoute(string $url): bool
-	{
-		
+	{	
 		foreach($this->routes as $route => $params){
+			
 			if(preg_match($route, $url, $matches)){
+				foreach($matches as $key => $match){
+					if(is_string($key)){
+						$this->params['args'][] = $match;
+					}
+				}
+				//print_r($this->params);
+				//echo '<br>';
 				$this->params['controller'] = $params['controller'];
 				$this->params['action'] = $params['action'];
 				return true;
@@ -77,11 +84,18 @@ class Router
 		if($this->matchRoute($url)){
 			$controllerName = 'App\\Controllers\\'.$this->params['controller'];
 			if(class_exists($controllerName)){
-				$controller = new $controllerName();
 				
+				$controller = new $controllerName();
 				$actionName = $this->params['action'];
-				if(method_exists($controller, $actionName)){
-					$controller->$actionName();
+				
+				if(method_exists($controller, $actionName) && is_callable([$controller, $actionName])){
+					$args = $this->params['args'] ?? null;
+					if(is_array($args) && $args){
+						$controller->$actionName(...$args);
+					}	
+					else{
+						$controller->$actionName();
+					}
 				}
 				else{
 					echo 'The method '.$actionName.' does not exist';
