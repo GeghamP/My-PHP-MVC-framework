@@ -20,3 +20,6 @@ if($url){
 		echo 'No route has been found';
 	}
 }
+else{
+	echo 'You are in the index file';
+}
