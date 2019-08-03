@@ -13,13 +13,13 @@ class Router
 	* Associative array of the routes(i.e. the routing table)
 	* @var array
 	*/
-	protected $routes = [];
+	protected static $routes = [];
 	
 	/**
 	* Parameters from the matched route
 	* @var array
 	*/
-	protected $params = [];
+	protected static $params = [];
 	
 	/**
 	* Add a route to routing table 
@@ -30,12 +30,12 @@ class Router
 	* @return void
 	*/
 	
-	public function add(string $route, array $params): void
+	public static function add(string $route, array $params): void
 	{
 		$route = preg_replace('/\//','\\/',$route);
 		$route = preg_replace('/\{([a-z]+)\}/', '(?<_$1>[a-z0-9-\s]+)', $route);
 		$route = '/^'.$route.'$/i';
-		$this->routes[$route] = $params;
+		static::$routes[$route] = $params;
 	}
 	
 	
@@ -49,20 +49,20 @@ class Router
 	* @return boolean True if there is a match, False otherwise
 	*/
 	
-	public function matchRoute(string $url): bool
+	private static function matchRoute(string $url): bool
 	{	
-		foreach($this->routes as $route => $params){
+		foreach(static::$routes as $route => $params){
 			
 			if(preg_match($route, $url, $matches)){
 				foreach($matches as $key => $match){
 					if(is_string($key)){
-						$this->params['args'][] = $match;
+						static::$params['args'][] = $match;
 					}
 				}
-				//print_r($this->params);
+				//print_r(static::params);
 				//echo '<br>';
-				$this->params['controller'] = $params['controller'];
-				$this->params['action'] = $params['action'];
+				static::$params['controller'] = $params['controller'];
+				static::$params['action'] = $params['action'];
 				return true;
 			}
 		}
@@ -79,17 +79,17 @@ class Router
 	* @return void
 	*/
 	
-	public function dispatch(string $url): void
+	public static function dispatch(string $url): void
 	{
-		if($this->matchRoute($url)){
-			$controllerName = 'App\\Controllers\\'.$this->params['controller'];
+		if(static::matchRoute($url)){
+			$controllerName = 'App\\Controllers\\'.static::$params['controller'];
 			if(class_exists($controllerName)){
 				
 				$controller = new $controllerName();
-				$actionName = $this->params['action'];
+				$actionName = static::$params['action'];
 				
 				if(method_exists($controller, $actionName) && is_callable([$controller, $actionName])){
-					$args = $this->params['args'] ?? null;
+					$args = static::$params['args'] ?? null;
 					if(is_array($args) && $args){
 						$controller->$actionName(...$args);
 					}	
@@ -108,27 +108,5 @@ class Router
 		else{
 			echo 'Error 404: Page does not exist';
 		}
-	}
-	
-	/**
-	* Get the routes from the routing table
-	*
-	* @return array
-	*/
-	
-	public function getRoutes(): array
-	{
-		return $this->routes;
-	}
-	
-	/**
-	* Get the matched parameters
-	*
-	* @return array
-	*/
-	
-	public function getParams(): array
-	{
-		return $this->params;
 	}
 }
