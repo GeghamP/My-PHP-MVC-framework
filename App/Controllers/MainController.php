@@ -2,12 +2,13 @@
 
 namespace App\Controllers;
 
+use Core\Controller;
 /**
 * MainController
 * PHP Version 7.3.6
 */
 
-class MainController
+class MainController extends Controller
 {
 	
 	/**
@@ -17,6 +18,6 @@ class MainController
 	*/
 	public function index(): void
 	{
-		echo "Hey you are in the main page. Congrats<br>";
+		$this->render('home');
 	}
 }

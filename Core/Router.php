@@ -32,9 +32,12 @@ class Router
 	
 	public static function add(string $route, array $params): void
 	{
+		$route = trim($route, '/');
 		$route = preg_replace('/\//','\\/',$route);
 		$route = preg_replace('/\{([a-z]+)\}/', '(?<_$1>[a-z0-9-\s]+)', $route);
 		$route = '/^'.$route.'$/i';
+		//var_dump($route);
+		//echo '<br>';
 		static::$routes[$route] = $params;
 	}
 	
