@@ -6,3 +6,5 @@ RewriteCond %{REQUEST_FILENAME} !-l
 
 RewriteRule ^(.+)$ public/index.php/$1 [QSA,L]
 DirectoryIndex public/index.php
+Options -Indexes
+ErrorDocument 403 /gfram/web/errors/error403.php

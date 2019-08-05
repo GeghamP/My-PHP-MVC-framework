@@ -109,7 +109,19 @@ class Router
 			}
 		}
 		else{
-			echo 'Error 404: Page does not exist';
+			static::pageNotFound();
 		}
+	}
+		
+	/**
+	* Called when Error 404 response is given, i.e. page is not found
+	*
+	* @return void
+	*/
+	private static function pageNotFound(): void
+	{
+		http_response_code(404);
+		require_once('../web/errors/error404.php');
+		die();
 	}
 }

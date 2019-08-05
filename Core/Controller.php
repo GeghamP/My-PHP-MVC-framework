@@ -28,7 +28,7 @@ abstract class Controller
 			echo $twig->render($file, $data);
 		}
 		else{
-			echo "File does not exist";
+			header('Location: /web/errors/error404.php');
 		}
 	}
 	
